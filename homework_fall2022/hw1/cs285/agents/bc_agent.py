@@ -1,5 +1,5 @@
-from cs285.infrastructure.replay_buffer import ReplayBuffer
-from cs285.policies.MLP_policy import MLPPolicySL
+from homework_fall2022.hw1.cs285.infrastructure.replay_buffer import ReplayBuffer
+from homework_fall2022.hw1.cs285.policies.MLP_policy import MLPPolicySL
 from .base_agent import BaseAgent
 
 

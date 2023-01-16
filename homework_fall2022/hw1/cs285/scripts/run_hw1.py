@@ -1,10 +1,10 @@
 import os
 import time
 
-from cs285.infrastructure.rl_trainer import RL_Trainer
-from cs285.agents.bc_agent import BCAgent
-from cs285.policies.loaded_gaussian_policy import LoadedGaussianPolicy
-from cs285.infrastructure.utils import MJ_ENV_KWARGS, MJ_ENV_NAMES
+from homework_fall2022.hw1.cs285.infrastructure.rl_trainer import RL_Trainer
+from homework_fall2022.hw1.cs285.agents.bc_agent import BCAgent
+from homework_fall2022.hw1.cs285.policies.loaded_gaussian_policy import LoadedGaussianPolicy
+from homework_fall2022.hw1.cs285.infrastructure.utils import MJ_ENV_KWARGS, MJ_ENV_NAMES
 
 class BC_Trainer(object):
 
