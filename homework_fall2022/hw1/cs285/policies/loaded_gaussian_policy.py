@@ -1,7 +1,7 @@
 import numpy as np
 
 from cs285.infrastructure import pytorch_util as ptu
-from cs285.base_policy import BasePolicy
+from cs285.policies.base_policy import BasePolicy
 from torch import nn
 import torch
 import pickle
