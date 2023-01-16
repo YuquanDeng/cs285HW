@@ -9,8 +9,8 @@ import numpy as np
 import torch
 from torch import distributions
 
-from homework_fall2022.hw1.cs285.infrastructure import pytorch_util as ptu
-from homework_fall2022.hw1.cs285.policies.base_policy import BasePolicy
+from cs285.infrastructure import pytorch_util as ptu
+from cs285.policies.base_policy import BasePolicy
 
 
 class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
@@ -98,9 +98,9 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # `torch.distributions.Distribution` object. It's up to you!
     def forward(self, observation: torch.FloatTensor) -> Any:
         if self.discrete:
-            return self.logits_na(observation)
+            return distributions.categorical.Categorical(probs=self.logits_na(observation)).sample()
         else:
-            return self.mean_net(observation)
+            return distributions.Normal(self.mean_net(observation), self.logstd.exp()).rsample()
 
 
 #####################################################
