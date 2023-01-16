@@ -58,7 +58,8 @@ def build_mlp(
     layers.append(nn.Linear(size, output_size))
     layers.append(output_activation)
 
-    return nn.Sequential(*layers)
+    # return nn.Sequential(*layers)
+    raise NotImplementedError
 
 device = None
 

@@ -79,13 +79,15 @@ class ReplayBuffer(object):
         random_indices = np.random.permutation(self.obs.shape[0])
         batch_indices = random_indices[-batch_size:]
 
-        return (
-            self.obs[batch_indices],
-            self.acs[batch_indices],
-            self.rews[batch_indices],
-            self.next_obs[batch_indices],
-            self.terminals[batch_indices]
-        )
+        # return (
+        #     self.obs[batch_indices],
+        #     self.acs[batch_indices],
+        #     self.rews[batch_indices],
+        #     self.next_obs[batch_indices],
+        #     self.terminals[batch_indices]
+        # )
+
+        return TODO, TODO, TODO, TODO, TODO
 
     def sample_recent_data(self, batch_size=1):
         return (
