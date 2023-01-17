@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import numpy as np
 import time
-
+import pickle
 import gym
 import torch
 
@@ -166,7 +166,9 @@ class RL_Trainer(object):
 
         # Return load_path if it's the first iteration.
         if itr == 1:
-            return load_initial_expertdata, 0, None
+            with open(load_initial_expertdata, 'rb') as f:
+                expertdata = pickle.load(f)
+            return expertdata, 0, None
 
         # TODO collect `batch_size` samples to be used for training
         # HINT1: use sample_trajectories from utils

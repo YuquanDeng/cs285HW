@@ -81,10 +81,8 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             observation = obs[None]
 
         # TODO return the action that the policy prescribes
-        raise NotImplementedError
-        # action = self(ptu.from_numpy(obs))
-        #
-        # return ptu.to_numpy(action)
+        action = self(ptu.from_numpy(observation))
+        return ptu.to_numpy(action)
 
 
     # update/train this policy
@@ -98,11 +96,10 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # return more flexible objects, such as a
     # `torch.distributions.Distribution` object. It's up to you!
     def forward(self, observation: torch.FloatTensor) -> Any:
-        raise NotImplementedError
-        # if self.discrete:
-        #     return distributions.categorical.Categorical(probs=self.logits_na(observation)).sample()
-        # else:
-        #     return distributions.Normal(self.mean_net(observation), self.logstd.exp()).rsample()
+        if self.discrete:
+            return distributions.Categorical(probs=self.logits_na(observation)).sample()
+        else:
+            return distributions.Normal(self.mean_net(observation), self.logstd.exp()).sample()
 
 
 #####################################################
@@ -118,11 +115,15 @@ class MLPPolicySL(MLPPolicy):
             adv_n=None, acs_labels_na=None, qvals=None
     ):
         # TODO: update the policy and return the loss
-        loss = TODO
-        # loss = self.loss(self(ptu.from_numpy(observations)), ptu.from_numpy(actions))
-        # self.optimizer.zero_grad()
-        # loss.backward()
-        # self.optimizer.step()
+        observations = ptu.from_numpy(observations)
+        actions = ptu.from_numpy(actions)
+        observations.requires_grad = True
+        actions.requires_grad = True
+
+        loss = self.loss(self(observations), actions)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
 
         return {
             # You can add extra logging information here, but keep this line
