@@ -93,7 +93,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 
         # TODO return the action that the policy prescribes
         action = self(ptu.from_numpy(observation))
-        return ptu.to_numpy(action)
+        return ptu.to_numpy(action.sample())
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
