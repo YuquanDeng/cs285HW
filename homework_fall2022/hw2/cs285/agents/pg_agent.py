@@ -3,7 +3,7 @@ import numpy as np
 from .base_agent import BaseAgent
 from cs285.policies.MLP_policy import MLPPolicyPG
 from cs285.infrastructure.replay_buffer import ReplayBuffer
-
+import itertools
 
 class PGAgent(BaseAgent):
     def __init__(self, env, agent_params):
@@ -43,6 +43,10 @@ class PGAgent(BaseAgent):
         # using helper functions to compute qvals and advantages, and
         # return the train_log obtained from updating the policy
 
+        q_values = self.calculate_q_vals(rewards_list)
+        advantages = self.estimate_advantage(observations, rewards_list, q_values, terminals)
+        train_log = self.actor.update(observations, actions, advantages)
+
         return train_log
 
     def calculate_q_vals(self, rewards_list):
@@ -76,8 +80,8 @@ class PGAgent(BaseAgent):
         else:
             q_values = self._discounted_cumsum(rewards_list)
 
-        # May need to flatten q_values
-        return q_values
+        q_values = list(itertools.chain.from_iterable(q_values))
+        return np.array(q_values)
 
     def estimate_advantage(self, obs: np.ndarray, rews_list: np.ndarray, q_values: np.ndarray, terminals: np.ndarray):
 
@@ -155,8 +159,17 @@ class PGAgent(BaseAgent):
 
             Output: list where each index t contains sum_{t'=0}^T gamma^t' r_{t'}
         """
-        n, d = rewards
-        list_of_discounted_returns = rewards @ np.vander([self.gamma], d, increasing=True).reshape(d, 1)
+
+        # Noted that the lis of reward is not a 2D numpy array since each rollout has different length T.
+        # Loop over the list of rewards and calculate the summation of reward for each entry;
+        # and then append them back to a list of numpy array with summation discounted reward at each entry.
+        list_of_discounted_returns = []
+        for reward in rewards:
+            d = len(reward)
+            gamma_vec = np.hstack([self.gamma] * d)
+            q_value = reward @ np.vander(gamma_vec, d, increasing=True).transpose()
+            list_of_discounted_returns.append(q_value)
+
         return list_of_discounted_returns
 
     def _discounted_cumsum(self, rewards):
@@ -166,5 +179,11 @@ class PGAgent(BaseAgent):
             -and returns a list where the entry in each index t' is sum_{t'=t}^T gamma^(t'-t) * r_{t'}
         """
         n, d = rewards
-        list_of_discounted_cumsums = np.triu(rewards) @ np.vander([self.gamma], d, increasing=True).reshape(d, 1)
+        list_of_discounted_cumsums = np.zeros((n, 1))
+        for i in range(d):
+            curr_t_reward_vec = rewards[:, i-d:] @ np.vander([self.gamma], d-i, increasing=True).reshape(n, 1)
+            list_of_discounted_cumsums = np.hstack((list_of_discounted_cumsums, curr_t_reward_vec))
+
+        # Delete the 0th column vector (the place holder)
+        list_of_discounted_cumsums = list_of_discounted_cumsums[:, 1:]
         return list_of_discounted_cumsums

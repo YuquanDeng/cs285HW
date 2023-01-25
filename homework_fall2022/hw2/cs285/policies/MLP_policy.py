@@ -141,7 +141,13 @@ class MLPPolicyPG(MLPPolicy):
         # HINT2: you will want to use the `log_prob` method on the distribution returned
             # by the `forward` method
 
-        TODO
+        N = actions.size(dim=0)
+
+        self.optimizer.zero_grad()
+        loss = -torch.sum(self(observations).log_prob(actions) * advantages) / N
+        loss.backward()
+        self.optimizer.step()
+
 
         if self.nn_baseline:
             ## TODO: update the neural network baseline using the q_values as
