@@ -176,7 +176,7 @@ class RL_Trainer(object):
         # (2) collect `self.params['batch_size']` transitions
 
         # Return load_path if it's the first iteration.
-        if itr == 1:
+        if itr == 1 and load_initial_expertdata is not None:
             with open(load_initial_expertdata, 'rb') as f:
                 expertdata = pickle.load(f)
             return expertdata, 0, None
