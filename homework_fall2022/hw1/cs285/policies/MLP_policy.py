@@ -82,13 +82,11 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 
         # TODO return the action that the policy prescribes
         action = self(ptu.from_numpy(observation))
-        return ptu.to_numpy(action)
-
+        return ptu.to_numpy(action.sample())
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
         raise NotImplementedError
-
 
     # This function defines the forward pass of the network.
     # You can return anything you want, but you should be able to differentiate
@@ -97,9 +95,13 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # `torch.distributions.Distribution` object. It's up to you!
     def forward(self, observation: torch.FloatTensor) -> Any:
         if self.discrete:
-            return distributions.Categorical(probs=self.logits_na(observation)).sample()
+            logits = self.logits_na(observation)
+            action_distribution = distributions.Categorical(logits=logits)
+            return action_distribution
         else:
-            return distributions.Normal(self.mean_net(observation), self.logstd.exp()).sample()
+            action_distribution = distributions.Normal(self.mean_net(observation), self.logstd.exp())
+            return action_distribution
+
 
 
 #####################################################
@@ -115,12 +117,12 @@ class MLPPolicySL(MLPPolicy):
             adv_n=None, acs_labels_na=None, qvals=None
     ):
         # TODO: update the policy and return the loss
-        observations = ptu.from_numpy(observations)
         actions = ptu.from_numpy(actions)
-        observations.requires_grad = True
+        observations = ptu.from_numpy(observations)
         actions.requires_grad = True
+        observations.requires_grad = True
 
-        loss = self.loss(self(observations), actions)
+        loss = -self(observations).log_prob(actions).mean()
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()

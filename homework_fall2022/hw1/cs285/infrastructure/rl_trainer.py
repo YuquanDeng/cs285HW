@@ -164,7 +164,7 @@ class RL_Trainer(object):
         # (2) collect `self.params['batch_size']` transitions
 
         # Return load_path if it's the first iteration.
-        if itr == 1:
+        if itr == 0:
             with open(load_initial_expertdata, 'rb') as f:
                 expertdata = pickle.load(f)
             return expertdata, 0, None
@@ -178,8 +178,7 @@ class RL_Trainer(object):
             self.env,
             collect_policy,
             batch_size,
-            self.params['ep_len'],
-            False)
+            self.params['ep_len'])
 
         # collect more rollouts with the same policy, to be saved as videos in tensorboard
         # note: here, we collect MAX_NVIDEO rollouts, each of length MAX_VIDEO_LEN
