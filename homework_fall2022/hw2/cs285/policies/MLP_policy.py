@@ -142,7 +142,6 @@ class MLPPolicyPG(MLPPolicy):
             # by the `forward` method
 
         N = actions.size(dim=0)
-
         self.optimizer.zero_grad()
         loss = -torch.sum(self(observations).log_prob(actions) * advantages) / N
         loss.backward()

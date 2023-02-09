@@ -134,7 +134,7 @@ class PGAgent(BaseAgent):
         # Normalize the resulting advantages to have a mean of zero
         # and a standard deviation of one
         if self.standardize_advantages:
-            advantages = TODO
+            advantages = (advantages - np.mean(advantages)) / np.std(advantages)
 
         return advantages
 
@@ -164,10 +164,12 @@ class PGAgent(BaseAgent):
         # Loop over the list of rewards and calculate the summation of reward for each entry;
         # and then append them back to a list of numpy array with summation discounted reward at each entry.
         list_of_discounted_returns = []
+
+        # Calculate the q value for each trajectory.
         for reward in rewards:
-            d = len(reward)
-            gamma_vec = np.hstack([self.gamma] * d)
-            q_value = reward @ np.vander(gamma_vec, d, increasing=True).transpose()
+            T = len(reward)
+            gamma_vec = np.hstack([self.gamma] * T)
+            q_value = reward @ np.vander(gamma_vec, T, increasing=True).transpose()
             list_of_discounted_returns.append(q_value)
 
         return list_of_discounted_returns
@@ -178,12 +180,14 @@ class PGAgent(BaseAgent):
             -takes a list of rewards {r_0, r_1, ..., r_t', ... r_T},
             -and returns a list where the entry in each index t' is sum_{t'=t}^T gamma^(t'-t) * r_{t'}
         """
-        n, d = rewards
-        list_of_discounted_cumsums = np.zeros((n, 1))
-        for i in range(d):
-            curr_t_reward_vec = rewards[:, i-d:] @ np.vander([self.gamma], d-i, increasing=True).reshape(n, 1)
-            list_of_discounted_cumsums = np.hstack((list_of_discounted_cumsums, curr_t_reward_vec))
+        list_of_discounted_cumsums = []
 
-        # Delete the 0th column vector (the place holder)
-        list_of_discounted_cumsums = list_of_discounted_cumsums[:, 1:]
+        for reward in rewards:
+            T = len(reward)
+            gamma_vec = np.hstack([self.gamma] * T)
+            vander_matrix = np.vander(gamma_vec, T, increasing=True).transpose()
+            vander_matrix = np.tril(vander_matrix)
+            q_value = reward @ np.tril(vander_matrix)
+            list_of_discounted_cumsums.append(q_value)
+
         return list_of_discounted_cumsums
