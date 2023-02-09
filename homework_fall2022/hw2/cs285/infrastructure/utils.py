@@ -62,7 +62,6 @@ def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('
     obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
     steps = 0
     while True:
-
         # render image of the simulated env
         if render:
             if hasattr(env, 'sim'):
@@ -73,7 +72,7 @@ def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('
         # use the most recent ob to decide what to do
         obs.append(ob)
         ac = policy.get_action(ob)  # HINT: query the policy's get_action function
-        ac= ac[0]
+        ac = ac[0]
         acs.append(ac)
 
         # take that action and record results
@@ -81,12 +80,12 @@ def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('
 
         # record result of taking that action
         steps += 1
+
         next_obs.append(ob)
         rewards.append(rew)
-
         # TODO end the rollout if the rollout ended
         # HINT: rollout can end due to done, or due to max_path_length
-        rollout_done = 1 if done or len(obs) >= max_path_length else 0# HINT: this is either 0 or 1
+        rollout_done = 1 if done or steps >= max_path_length else 0  # HINT: this is either 0 or 1
         terminals.append(rollout_done)
 
         if rollout_done:
@@ -96,11 +95,11 @@ def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('
 
 def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, render=False, render_mode=('rgb_array')):
     """
-       Collect rollouts until we have collected min_timesteps_per_batch steps.
+        Collect rollouts until we have collected min_timesteps_per_batch steps.
 
-       TODO implement this function
-       Hint1: use sample_trajectory to get each path (i.e. rollout) that goes into paths
-       Hint2: use get_pathlength to count the timesteps collected in each path
+        TODO implement this function
+        Hint1: use sample_trajectory to get each path (i.e. rollout) that goes into paths
+        Hint2: use get_pathlength to count the timesteps collected in each path
     """
     timesteps_this_batch = 0
     paths = []
